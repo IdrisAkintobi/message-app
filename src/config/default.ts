@@ -9,7 +9,8 @@ const config: Config = {
     },
     frontend: {
         selfUrl: "http://localhost:5000/app",
-    }
-}
+    },
+    port: 5000,
+};
 
 export default config;

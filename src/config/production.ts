@@ -9,7 +9,8 @@ const config: Config = {
     },
     frontend: {
         selfUrl: "https://someapp.yulife.com/app",
-    }
-}
+    },
+    port: 80,
+};
 
 export default config;

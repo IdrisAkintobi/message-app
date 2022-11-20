@@ -1,6 +1,17 @@
-import { prop, getModelForClass, Ref } from '@typegoose/typegoose';
-import { Message } from "./message";
+import { getModelForClass, modelOptions, prop } from "@typegoose/typegoose";
 
+@modelOptions({
+    schemaOptions: {
+        toJSON: {
+            virtuals: true,
+            transform: (doc, ret) => {
+                delete ret._id;
+                delete ret.__v;
+                delete ret.password;
+            },
+        },
+    },
+})
 export class User {
     @prop()
     public name?: string;
