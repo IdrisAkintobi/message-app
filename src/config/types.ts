@@ -8,5 +8,5 @@ export type Config = {
     frontend: {
         selfUrl: string;
     };
-    port?: number;
+    port?: number | string;
 };

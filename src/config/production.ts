@@ -2,15 +2,15 @@ import { Config } from "./types";
 
 const config: Config = {
     database: {
-        uri: "mongodb://localhost/yulife-performance",
+        uri: process.env.DATABASE_URI as string,
     },
     auth: {
-        secret: "sfdgr8rqw734r734je!ejw47dwer£",
+        secret: process.env.AUTH_SECRET as string,
     },
     frontend: {
-        selfUrl: "https://someapp.yulife.com/app",
+        selfUrl: "http://localhost:5000/app",
     },
-    port: 80,
+    port: process.env.PORT as string,
 };
 
 export default config;

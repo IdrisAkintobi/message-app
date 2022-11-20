@@ -1,5 +1,4 @@
-import { ObjectType, Field, ID } from "type-graphql";
-import User from "../user/user.type";
+import { Field, ID, ObjectType } from "type-graphql";
 
 @ObjectType()
 class Message {
@@ -10,10 +9,10 @@ class Message {
     contents!: string;
 
     @Field()
-    from?: User;
+    from?: string;
 
     @Field()
-    to?: User;
+    to?: string;
 }
 
 export default Message;

@@ -1,5 +1,4 @@
-import { ObjectType, Field, ID } from "type-graphql";
-import Message from "../message/message.type";
+import { Field, ID, ObjectType } from "type-graphql";
 
 @ObjectType()
 class User {
@@ -11,9 +10,6 @@ class User {
 
     @Field()
     unreadMessageCount?: number;
-
-    @Field(type => [Message])
-    inbox?: Message[];
 }
 
 export default User;

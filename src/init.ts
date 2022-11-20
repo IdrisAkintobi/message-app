@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import jwt from "express-jwt";
 import expressPlayground from "graphql-playground-middleware-express";
@@ -12,7 +13,7 @@ const init = async () => {
     console.log(`DB connected to ${config.database.uri}!`);
     const server = await createGraphqlServer(db);
 
-    const PORT = process.env.PORT || config.port;
+    const PORT = config.port;
     const path = "/graphql";
 
     app.use(

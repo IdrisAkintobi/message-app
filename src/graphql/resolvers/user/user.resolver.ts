@@ -1,9 +1,9 @@
-import { Resolver, Query, Mutation, Ctx, Arg, FieldResolver, Root } from "type-graphql";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import User from "./user.type";
-import Context from "../../context";
+import jwt from "jsonwebtoken";
+import { Arg, Ctx, FieldResolver, Mutation, Query, Resolver, Root } from "type-graphql";
 import config from "../../../config";
+import Context from "../../context";
+import User from "./user.type";
 
 @Resolver(User)
 export default class UserResolver {
@@ -25,25 +25,8 @@ export default class UserResolver {
         return {
             id: user._id,
             name: user.name,
-            inbox: undefined,
             unreadMessageCount: undefined,
         };
-    }
-
-    /**
-     * User's inbox
-     */
-    @FieldResolver()
-    async inbox(@Root() user: User, @Ctx() { database, userId }: Context): Promise<User["inbox"]> {
-        // lookup the messages for a user from messages table
-        const messages = await database.MessageModel.find({ to: userId });
-
-        return messages.map(message => ({
-            id: message.id,
-            contents: message.contents,
-            to: message.to as any,
-            from: message.from as any,
-        }));
     }
 
     /**

@@ -1,8 +1,8 @@
-import { Resolver, Mutation, Ctx, Root, Arg, FieldResolver } from "type-graphql";
-import Message from "./message.type";
-import User from "../user/user.type";
-import Context from "../../context";
+import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root } from "type-graphql";
 import { random } from "../../../utils/math";
+import Context from "../../context";
+import User from "../user/user.type";
+import Message from "./message.type";
 const randomSentence = require("random-sentence");
 
 @Resolver(Message)
@@ -27,7 +27,6 @@ export default class MessageResolver {
             id: user.id,
             name: user.name,
             unreadMessageCount: undefined,
-            inbox: undefined,
         };
     }
 
@@ -52,7 +51,6 @@ export default class MessageResolver {
             id: user.id,
             name: user.name,
             unreadMessageCount: undefined,
-            inbox: undefined,
         };
     }
 
