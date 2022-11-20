@@ -1,5 +1,7 @@
 import { Field, ID, ObjectType } from "type-graphql";
+import User from "../user/user.type";
 
+// Type of user not including unreadMessageCount
 @ObjectType()
 class Message {
     @Field(type => ID)
@@ -9,10 +11,22 @@ class Message {
     contents!: string;
 
     @Field()
-    from?: string;
+    read!: boolean;
 
     @Field()
-    to?: string;
+    createdAt!: Date;
+}
+
+@ObjectType()
+export class MessageOut extends Message {
+    @Field()
+    to!: User;
+}
+
+@ObjectType()
+export class MessageIn extends Message {
+    @Field()
+    from!: User;
 }
 
 export default Message;

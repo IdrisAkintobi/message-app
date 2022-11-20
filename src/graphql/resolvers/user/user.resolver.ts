@@ -2,30 +2,32 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Arg, Ctx, FieldResolver, Mutation, Query, Resolver, Root } from "type-graphql";
 import config from "../../../config";
+import { AuthorizationError, ForbiddenError, ServerError } from "../../../utils/app.error";
 import Context from "../../context";
-import User from "./user.type";
+import { UserWithCount } from "./user.type";
 
-@Resolver(User)
+@Resolver(UserWithCount)
 export default class UserResolver {
     /**
      * Me Query
      */
-    @Query(returns => User)
-    async me(@Ctx() { database, userId }: Context): Promise<User> {
+    @Query(returns => UserWithCount)
+    async me(@Ctx() { database, userId }: Context): Promise<UserWithCount> {
+        // Ensure user is logged in
         if (!userId) {
-            throw new Error(`Not authenticated`);
+            throw new AuthorizationError(`Not authenticated`);
         }
 
+        // lookup user from DB
         const user = await database.UserModel.findById(userId);
-
         if (!user) {
-            throw new Error(`User does not exist`);
+            throw new ServerError();
         }
 
         return {
-            id: user._id,
+            id: user.id,
             name: user.name,
-            unreadMessageCount: undefined,
+            email: user.email,
         };
     }
 
@@ -34,12 +36,12 @@ export default class UserResolver {
      */
     @FieldResolver()
     async unreadMessageCount(
-        @Root() user: User,
+        @Root() user: UserWithCount,
         @Ctx() { database, userId }: Context,
-    ): Promise<User["unreadMessageCount"]> {
-        // do a count on the DB for messages count
-        const count = await database.MessageModel.find({ to: userId });
-        return count.length;
+    ): Promise<UserWithCount["unreadMessageCount"]> {
+        // do a count on the DB for user unread messages
+        const count = await database.MessageModel.countDocuments({ to: userId, read: false });
+        return count;
     }
 
     /**
@@ -47,19 +49,20 @@ export default class UserResolver {
      */
     @Mutation(returns => String)
     async login(@Arg("email") email: string, @Arg("password") password: string, @Ctx() { database }: Context) {
+        // find user by email
         const record = await database.UserModel.findOne({ email });
-
         if (!record) {
-            throw new Error(`Incorrect password`);
+            throw new AuthorizationError(`Invalid credentials`);
         }
 
+        // compare password
         const correct = await bcrypt.compare(password, record.password);
-
         if (!correct) {
-            throw new Error(`Invalid credentials`);
+            throw new AuthorizationError(`Invalid credentials`);
         }
 
-        return jwt.sign({ userId: record._id }, config.auth.secret, { expiresIn: "1y" });
+        // return JWT
+        return jwt.sign({ userId: record._id }, config.auth.secret, { expiresIn: "7d" });
     }
 
     /**
@@ -67,19 +70,20 @@ export default class UserResolver {
      */
     @Mutation(returns => String)
     async register(@Arg("email") email: string, @Arg("password") password: string, @Ctx() { database }: Context) {
+        // check if user already exists
         const existing = await database.UserModel.findOne({ email });
-
         if (existing) {
-            throw new Error(`User exists!`);
+            throw new ForbiddenError(`User exists!`);
         }
 
-        const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(password, salt);
+        // hash password and create user
+        const hash = await bcrypt.hash(password, 10);
         const user = await database.UserModel.create({
             email,
             password: hash,
         });
 
-        return jwt.sign({ userId: user._id }, config.auth.secret, { expiresIn: "1y" });
+        // return JWT
+        return jwt.sign({ userId: user._id }, config.auth.secret, { expiresIn: "7d" });
     }
 }

@@ -1,10 +1,14 @@
 import { mongoose } from "@typegoose/typegoose";
-import { UserModel, MessageModel } from "./models";
 import { Config } from "../config/types";
 import { Unpacked } from "../utils/types";
+import { MessageModel, UserModel } from "./models";
 
 const init = async (config: Config["database"]) => {
-    const connection = await mongoose.connect(config.uri, { useUnifiedTopology: true, useNewUrlParser: true });
+    const connection = await mongoose.connect(config.uri, {
+        useUnifiedTopology: true,
+        useNewUrlParser: true,
+        useFindAndModify: false,
+    });
 
     return {
         connection,

@@ -9,6 +9,12 @@ class User {
     name?: string;
 
     @Field()
+    email!: string;
+}
+
+@ObjectType()
+export class UserWithCount extends User {
+    @Field()
     unreadMessageCount?: number;
 }
 

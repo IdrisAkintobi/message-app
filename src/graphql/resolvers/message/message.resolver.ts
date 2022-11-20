@@ -1,84 +1,169 @@
-import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root } from "type-graphql";
-import { random } from "../../../utils/math";
+import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { AuthorizationError, BadRequestError, ServerError } from "../../../utils/app.error";
 import Context from "../../context";
-import User from "../user/user.type";
-import Message from "./message.type";
-const randomSentence = require("random-sentence");
+import Message, { MessageIn, MessageOut } from "./message.type";
 
 @Resolver(Message)
 export default class MessageResolver {
     /**
-     * Looks up and returns the recipient
+     * View all messages in the inbox with pagination
      */
-    @FieldResolver()
-    async to(@Root() { to }: Message, @Ctx() { database }: Context): Promise<User | null> {
-        // TODO: add lookup from DB
-        if (!to) {
-            return null;
-        }
-
-        const user = await database.UserModel.findById(to);
-
-        if (!user) {
-            return null;
-        }
-
-        return {
-            id: user.id,
-            name: user.name,
-            unreadMessageCount: undefined,
-        };
-    }
-
-    /**
-     * Looks up and returns the sender
-     */
-    @FieldResolver()
-    async from(@Root() { from }: Message, @Ctx() { database }: Context): Promise<User | null> {
-        if (!from) {
-            return null;
-        }
-
-        const user = await database.UserModel.findById(from);
-
-        console.log(`User found!`, user);
-
-        if (!user) {
-            return null;
-        }
-
-        return {
-            id: user.id,
-            name: user.name,
-            unreadMessageCount: undefined,
-        };
-    }
-
-    /**
-     * Sends a message to a random user
-     */
-    @Mutation(type => Message)
-    async sendRandomMessage(@Ctx() { database, userId }: Context, @Arg("message") message: string): Promise<Message> {
+    @Query(returns => [MessageIn])
+    async inbox(
+        @Ctx() { database, userId }: Context,
+        @Arg("page", { defaultValue: 1 }) page: number,
+        @Arg("limit", { defaultValue: 20 }) limit: number,
+    ): Promise<MessageIn[]> {
         if (!userId) {
-            throw new Error(`Not authenticated`);
+            throw new AuthorizationError(`Not authenticated`);
         }
 
-        const count = await database.UserModel.countDocuments({});
-        const to = await database.UserModel.findOne({ _id: { $ne: userId } })
-            .skip(random(0, count))
-            .select("_id");
+        // Get current user
+        const user = await database.UserModel.findById(userId);
+        if (!user) {
+            throw new ServerError();
+        }
 
-        const record = await database.MessageModel.create({
+        // find all messages where the user is the recipient and populate the sender
+        const messages = await database.MessageModel.find({
+            to: userId,
+        })
+            .populate("from", "name email")
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        return messages as MessageIn[];
+    }
+
+    /**
+     * View all messages in the outbox with pagination
+     */
+
+    @Query(returns => [MessageOut])
+    async outbox(
+        @Ctx() { database, userId }: Context,
+        @Arg("page", { defaultValue: 1 }) page: number,
+        @Arg("limit", { defaultValue: 20 }) limit: number,
+    ): Promise<MessageOut[]> {
+        if (!userId) {
+            throw new AuthorizationError(`Not authenticated`);
+        }
+
+        // Get current user
+        const user = await database.UserModel.findById(userId);
+        if (!user) {
+            throw new ServerError();
+        }
+
+        // find all messages where the user is the sender and populate the recipient
+        const messages = await database.MessageModel.find({
             from: userId,
-            to: to?._id,
-            contents: message,
-        });
+        })
+            .populate("to", "name email")
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .sort({ createdAt: -1 });
 
-        return {
-            id: record.id,
-            contents: message,
-            to: to?._id,
-            from: userId as any,
-        };
+        return messages as MessageOut[];
+    }
+
+    /**
+     * Sends message to a user
+     */
+    @Mutation(returns => MessageOut)
+    async sendMessage(
+        @Arg("to") to: string,
+        @Arg("contents") contents: string,
+        @Ctx() { database, userId }: Context,
+    ): Promise<MessageOut> {
+        if (!userId) {
+            throw new AuthorizationError(`Not authenticated`);
+        }
+
+        // Fetch current user and recipient
+        const [sender, recipient] = await Promise.all([
+            database.UserModel.findById(userId),
+            database.UserModel.findOne({ email: to }),
+        ]);
+
+        if (!sender) throw new ServerError();
+        if (!recipient) throw new BadRequestError(`Recipient does not exist`);
+        if (sender.id === recipient.id) throw new BadRequestError(`You cannot send a message to yourself`);
+
+        // Create message
+        try {
+            const message = await database.MessageModel.create({
+                from: sender.id,
+                to: recipient.id,
+                contents,
+            });
+
+            return { ...message.toJSON(), to: recipient.toJSON() };
+        } catch (error) {
+            throw new ServerError();
+        }
+    }
+
+    /**
+     * Mark a message as read
+     */
+    @Mutation(returns => Message)
+    async markMessageAsRead(@Arg("id") id: string, @Ctx() { database, userId }: Context): Promise<Message> {
+        if (!userId) {
+            throw new AuthorizationError(`Not authenticated`);
+        }
+
+        const message = await database.MessageModel.findOneAndUpdate(
+            { _id: id, to: userId, read: false },
+            { read: true },
+            { new: true },
+        );
+
+        if (!message) {
+            throw new BadRequestError(`Message does not exist`);
+        }
+
+        return message.toJSON();
+    }
+
+    /**
+     * Mark a message as unread
+     */
+    @Mutation(returns => Message)
+    async markMessageAsUnread(@Arg("id") id: string, @Ctx() { database, userId }: Context): Promise<Message> {
+        if (!userId) {
+            throw new AuthorizationError(`Not authenticated`);
+        }
+
+        const message = await database.MessageModel.findOneAndUpdate(
+            { _id: id, to: userId, read: true },
+            { read: false },
+            { new: true },
+        );
+
+        if (!message) {
+            throw new BadRequestError(`Message does not exist`);
+        }
+
+        return message.toJSON();
+    }
+
+    /**
+     * Delete a message
+     */
+    @Mutation(returns => Message)
+    async deleteMessage(@Arg("id") id: string, @Ctx() { database, userId }: Context): Promise<Message> {
+        if (!userId) {
+            throw new AuthorizationError(`Not authenticated`);
+        }
+
+        const message = await database.MessageModel.findOneAndDelete({ _id: id, from: userId });
+
+        if (!message) {
+            throw new BadRequestError(`Message does not exist`);
+        }
+
+        return { ...message.toJSON() };
     }
 }
