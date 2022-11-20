@@ -6,7 +6,7 @@ class Context {
     public isAuthenticated?: boolean;
 
     constructor(public database: Database, expressContext: ExpressContext) {
-        const user = (expressContext.req as any).user as Creds;
+        const user = (expressContext.req as any).auth as Creds;
 
         if (user) {
             this.userId = user.userId;

@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import jwt from "express-jwt";
+import { expressjwt } from "express-jwt";
 import expressPlayground from "graphql-playground-middleware-express";
 import "reflect-metadata"; // this ensures type graphql works properly
 import config from "./config";
@@ -18,7 +18,7 @@ const init = async () => {
 
     app.use(
         path,
-        jwt({
+        expressjwt({
             secret: config.auth.secret,
             credentialsRequired: false,
             algorithms: ["HS256"],
@@ -28,6 +28,7 @@ const init = async () => {
     // for debugging
     app.get("/playground", expressPlayground({ endpoint: "/graphql" }));
 
+    await server.start();
     server.applyMiddleware({ app, path });
 
     app.listen(PORT, () => console.log(`Server is ready at http://localhost:${PORT}${server.graphqlPath}`));

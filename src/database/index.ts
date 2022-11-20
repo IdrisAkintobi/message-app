@@ -4,11 +4,7 @@ import { Unpacked } from "../utils/types";
 import { MessageModel, UserModel } from "./models";
 
 const init = async (config: Config["database"]) => {
-    const connection = await mongoose.connect(config.uri, {
-        useUnifiedTopology: true,
-        useNewUrlParser: true,
-        useFindAndModify: false,
-    });
+    const connection = await mongoose.connect(config.uri);
 
     return {
         connection,

@@ -99,7 +99,7 @@ export default class MessageResolver {
                 contents,
             });
 
-            return { ...message.toJSON(), to: recipient.toJSON() };
+            return { ...message.toJSON(), to: recipient.toJSON() } as MessageOut;
         } catch (error) {
             throw new ServerError();
         }
@@ -124,7 +124,7 @@ export default class MessageResolver {
             throw new BadRequestError(`Message does not exist`);
         }
 
-        return message.toJSON();
+        return message.toJSON() as Message;
     }
 
     /**
@@ -146,7 +146,7 @@ export default class MessageResolver {
             throw new BadRequestError(`Message does not exist`);
         }
 
-        return message.toJSON();
+        return message.toJSON() as Message;
     }
 
     /**
@@ -164,6 +164,6 @@ export default class MessageResolver {
             throw new BadRequestError(`Message does not exist`);
         }
 
-        return { ...message.toJSON() };
+        return message.toJSON() as Message;
     }
 }

@@ -10,6 +10,7 @@ export default async (db: Database) => {
     const server = new ApolloServer({
         schema,
         context: req => new Context(db, req),
+        cache: "bounded",
         introspection: process.env.NODE_ENV !== "production",
     });
 
