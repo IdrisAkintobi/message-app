@@ -24,9 +24,19 @@ scenarios:
                 - post:
                       url: "/graphql"
                       beforeRequest: "getUser"
-                      #   afterResponse: "log"
+                      # afterResponse: "log"
             count: 5
           - post:
                 url: "/graphql"
+                json:
+                    to: "user+2@test.yulife.com"
+                    contents: "This is load testing message"
                 beforeRequest: "getMessages"
-                # afterResponse: "log"
+          - log: "Inbox fetched ..."
+          - post:
+                url: "/graphql"
+                json:
+                    to: "user+2@test.yulife.com"
+                    contents: "This is load testing message"
+                beforeRequest: "sendMessage"
+          - log: "Message sent ..."

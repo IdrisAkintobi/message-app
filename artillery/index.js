@@ -7,64 +7,17 @@ function getMessages(requestParams, context, ee, next) {
     requestParams.json = {
         operationName: "GetMessages",
         query: `query GetMessages {
-            me {
-              id
-              unreadMessageCount
-              inbox {
+            inbox {
                 id
                 contents
+                read
+                createdAt
                 from {
-                    id
-                    unreadMessageCount
-                    inbox {
-                        id
-                        contents
-                        from {
-                            id
-                            unreadMessageCount
-                            inbox {
-                                id
-                                contents
-                                from {
-                                    id
-                                }
-                                to {
-                                    id
-                                }
-                            }
-                        }
-                        to {
-                            id
-                            unreadMessageCount
-                            inbox {
-                                id
-                                contents
-                                from {
-                                    id
-                                }
-                                to {
-                                    id
-                                }
-                            }
-                        }
-                    }
-                }
-                to {
-                    id
-                    unreadMessageCount
-                    inbox {
-                        id
-                        contents
-                        from {
-                            id
-                        }
-                        to {
-                            id
-                        }
-                    }
+                  id
+                  name
+                  email
                 }
               }
-            }
           }`,
         variables: {},
     };
@@ -83,20 +36,6 @@ function getUser(requestParams, context, ee, next) {
               id
               name
               unreadMessageCount
-              inbox {
-                id
-                contents
-                from {
-                    id
-                    name
-                    unreadMessageCount
-                }
-                to {
-                    id
-                    name
-                    unreadMessageCount
-                }
-              }
             }
           }`,
         variables: {},
@@ -106,13 +45,24 @@ function getUser(requestParams, context, ee, next) {
 }
 
 function sendMessage(requestParams, context, ee, next) {
+    requestParams.headers = {
+        authorization: `Bearer ${context.vars["AUTH_TOKEN"]}`,
+    };
     const variables = Object.assign({}, requestParams.json);
 
     requestParams.json = {
         operationName: "SendMessage",
-        query: `mutation SendMessage($message: String!) {
-            sendRandomMessage(message: $message) {
+        query: `mutation SendMessage($contents: String!, $to: String!) {
+            sendMessage(contents: $contents, to: $to) {
+              id
+              contents
+              read
+              createdAt
+              to {
                 id
+                name
+                email
+              }
             }
           }`,
         variables,
@@ -120,7 +70,6 @@ function sendMessage(requestParams, context, ee, next) {
 
     return next();
 }
-
 
 function login(requestParams, context, ee, next) {
     const variables = Object.assign({}, requestParams.json);
