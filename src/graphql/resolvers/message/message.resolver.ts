@@ -42,9 +42,9 @@ export default class MessageResolver {
 
     @Query(returns => [MessageOut])
     async outbox(
-        @Ctx() { database, userId }: Context,
         @Arg("page", { defaultValue: 1 }) page: number,
         @Arg("limit", { defaultValue: 20 }) limit: number,
+        @Ctx() { database, userId }: Context,
     ): Promise<MessageOut[]> {
         if (!userId) {
             throw new AuthorizationError(`Not authenticated`);

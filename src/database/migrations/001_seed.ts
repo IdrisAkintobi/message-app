@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { Db, ObjectID } from "mongodb";
+import { Db, ObjectId } from "mongodb";
 import { random } from "../../utils/math";
 const randomSentence = require("random-sentence");
 
@@ -10,8 +10,8 @@ export const up = async (db: Db) => {
     const password = await bcrypt.hash(plainPassword, 10);
     const users = Array.from(new Array(USER_COUNT)).map((_, i) => ({
         password,
-        _id: new ObjectID(),
-        email: `user+${i}@test.yulife.com`,
+        _id: new ObjectId(),
+        email: `user+${i}@test.app.com`,
         name: `User ${i}`,
     }));
     await db.collection("users").insertMany(users);

@@ -2,7 +2,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Arg, Ctx, FieldResolver, Mutation, Query, Resolver, Root } from "type-graphql";
 import config from "../../../config";
-import { AuthorizationError, ForbiddenError, ServerError } from "../../../utils/app.error";
+import { AuthorizationError, BadRequestError, ForbiddenError, ServerError } from "../../../utils/app.error";
+import { loginValidator, registerValidator } from "../../../utils/validator";
 import Context from "../../context";
 import { UserWithCount } from "./user.type";
 
@@ -49,10 +50,17 @@ export default class UserResolver {
      */
     @Mutation(returns => String)
     async login(@Arg("email") email: string, @Arg("password") password: string, @Ctx() { database }: Context) {
+        // validate input
+        try {
+            loginValidator.parse({ email, password });
+        } catch (e) {
+            throw new BadRequestError("Invalid input");
+        }
+
         // find user by email
         const record = await database.UserModel.findOne({ email });
         if (!record) {
-            throw new AuthorizationError(`Invalid credentials`);
+            throw new AuthorizationError("Invalid credentials");
         }
 
         // compare password
@@ -69,7 +77,19 @@ export default class UserResolver {
      * Register new user
      */
     @Mutation(returns => String)
-    async register(@Arg("email") email: string, @Arg("password") password: string, @Ctx() { database }: Context) {
+    async register(
+        @Arg("name") name: string,
+        @Arg("email") email: string,
+        @Arg("password") password: string,
+        @Ctx() { database }: Context,
+    ) {
+        // validate input
+        try {
+            registerValidator.parse({ name, email, password });
+        } catch (e) {
+            throw new BadRequestError("Invalid input");
+        }
+
         // check if user already exists
         const existing = await database.UserModel.findOne({ email });
         if (existing) {
@@ -79,6 +99,7 @@ export default class UserResolver {
         // hash password and create user
         const hash = await bcrypt.hash(password, 10);
         const user = await database.UserModel.create({
+            name,
             email,
             password: hash,
         });

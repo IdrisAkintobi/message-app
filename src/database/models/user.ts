@@ -14,7 +14,7 @@ import { getModelForClass, modelOptions, prop } from "@typegoose/typegoose";
 })
 export class User {
     @prop()
-    public name?: string;
+    public name!: string;
 
     @prop()
     public email!: string;

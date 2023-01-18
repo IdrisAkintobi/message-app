@@ -4,7 +4,7 @@
             "exec_mode": "cluster",
             "instances": 0,
             "script": "./build/init.js",
-            "name": "yulifePerfTest",
+            "name": "appPerfTest",
             "interpreter": "node",
             "env": {
                 "NODE_ENV": "production"
