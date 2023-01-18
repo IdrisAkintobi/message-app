@@ -9,12 +9,12 @@ config:
           arrivalRate: 10
     processor: "./index.js"
 scenarios:
-    - name: "YuLife Performance load test"
+    - name: "App Performance load test"
       flow:
           - post:
                 url: "/graphql"
                 json:
-                    email: "user+1@test.yulife.com"
+                    email: "user+1@test.app.com"
                     password: "abcd1234"
                 beforeRequest: "login"
                 afterResponse: "storeToken"
@@ -29,14 +29,14 @@ scenarios:
           - post:
                 url: "/graphql"
                 json:
-                    to: "user+2@test.yulife.com"
+                    to: "user+2@test.app.com"
                     contents: "This is load testing message"
                 beforeRequest: "getMessages"
           - log: "Inbox fetched ..."
           - post:
                 url: "/graphql"
                 json:
-                    to: "user+2@test.yulife.com"
+                    to: "user+2@test.app.com"
                     contents: "This is load testing message"
                 beforeRequest: "sendMessage"
           - log: "Message sent ..."

@@ -1,12 +1,12 @@
 {
-    "name": "yulife-performance-task",
+    "name": "messaging-app",
     "version": "1.0.0",
     "main": "index.js",
     "license": "MIT",
     "scripts": {
         "develop": "concurrently 'yarn tsc -w' 'yarn nodemon build/init.js'",
         "build": "tsc",
-        "start": "pm2 start pm2.json --no-daemon",
+        "start": "pm2-runtime start pm2.json",
         "artillery:run": "artillery run ./artillery/main.yml",
         "migrate:status": "migrate-mongo status",
         "migrate:up": "migrate-mongo up",
@@ -28,7 +28,8 @@
         "nodemon": "^2.0.7",
         "pm2": "^5.2.2",
         "reflect-metadata": "^0.1.13",
-        "type-graphql": "^1.1.1"
+        "type-graphql": "^1.1.1",
+        "zod": "^3.20.2"
     },
     "devDependencies": {
         "@types/bcrypt": "^3.0.0",
