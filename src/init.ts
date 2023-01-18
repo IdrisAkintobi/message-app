@@ -10,7 +10,7 @@ import createGraphqlServer from "./graphql";
 const init = async () => {
     const app = express();
     const db = await getDatabase(config.database);
-    console.log(`DB connected to ${config.database.uri}!`);
+    console.log("DB connected!");
     const server = await createGraphqlServer(db);
 
     const PORT = config.port;
