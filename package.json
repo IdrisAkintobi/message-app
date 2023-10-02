@@ -1,10 +1,10 @@
 {
     "name": "messaging-app",
     "version": "1.0.0",
-    "main": "index.js",
+    "main": "build/init.js",
     "license": "MIT",
     "scripts": {
-        "develop": "concurrently 'yarn tsc -w' 'yarn nodemon build/init.js'",
+        "dev": "concurrently 'yarn tsc -w' 'yarn nodemon build/init.js'",
         "build": "tsc",
         "start": "pm2-runtime start pm2.json",
         "artillery:run": "artillery run ./artillery/main.yml",
@@ -13,18 +13,18 @@
         "migrate:down": "migrate-mongo down"
     },
     "dependencies": {
-        "@typegoose/typegoose": "^9.12.1",
+        "@typegoose/typegoose": "^11.5.0",
         "apollo-server-express": "^3.11.1",
         "bcrypt": "^5.0.1",
         "concurrently": "^6.0.0",
         "dotenv": "^16.0.3",
         "express": "^4.17.1",
-        "express-jwt": "^7.7.7",
+        "express-jwt": "^8.4.1",
         "graphql": "^15.5.0",
         "graphql-playground-middleware-express": "^1.7.22",
-        "jsonwebtoken": "^8.5.1",
+        "jsonwebtoken": "^9.0.2",
         "migrate-mongo": "^8.2.2",
-        "mongoose": "^6.7.2",
+        "mongoose": "^7.5.3",
         "nodemon": "^2.0.7",
         "pm2": "^5.2.2",
         "reflect-metadata": "^0.1.13",
@@ -36,7 +36,7 @@
         "@types/express": "^4.17.14",
         "@types/jsonwebtoken": "^8.5.0",
         "@types/node": "^18.11.9",
-        "artillery": "1.6.1",
+        "artillery": "^2.0.0-37",
         "random-sentence": "^1.0.4",
         "typescript": "^4.2.3"
     },
@@ -45,5 +45,8 @@
         "tabWidth": 4,
         "trailingComma": "all",
         "arrowParens": "avoid"
+    },
+    "engines": {
+        "node": ">=18.0.0"
     }
 }

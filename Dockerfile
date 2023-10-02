@@ -1,4 +1,4 @@
-FROM node:12.18
+FROM node:18
 
 # Bundle app source
 ADD . .
