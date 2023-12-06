@@ -164,6 +164,6 @@ export default class MessageResolver {
             throw new BadRequestError(`Message does not exist`);
         }
 
-        return message.toJSON() as Message;
+        return message.value as Message;
     }
 }
