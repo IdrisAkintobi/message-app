@@ -13,10 +13,10 @@ import User from "../../graphql/resolvers/user/user.type";
     },
 })
 export class Message {
-    @prop({ ref: User })
+    @prop({ ref: User, index: true })
     public from!: Ref<User>;
 
-    @prop({ ref: User })
+    @prop({ ref: User, index: true })
     public to!: Ref<User>;
 
     @prop()

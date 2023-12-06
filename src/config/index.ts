@@ -1,14 +1,13 @@
-import defaultConfig from "./default";
-import productionConfig from "./production";
 import { Config } from "./types";
 
-const getConfig = (): Config => {
-    switch (process.env.NODE_ENV) {
-        case "production":
-            return productionConfig;
-        default:
-            return defaultConfig;
-    }
+const config: Config = {
+    database: {
+        uri: process.env.DATABASE_URI as string,
+    },
+    auth: {
+        secret: process.env.AUTH_SECRET as string,
+    },
+    port: process.env.PORT as string,
 };
 
-export default getConfig();
+export default config;

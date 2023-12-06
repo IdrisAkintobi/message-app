@@ -2,10 +2,10 @@
 
 const config = {
     mongodb: {
-        // TODO Change (or review) the url to your MongoDB:
+        //mongoDB URL
         url: "mongodb://localhost:27017/messaging-app",
 
-        // TODO Change this to your database name:
+        //database name:
         databaseName: "messaging-app",
 
         options: {
@@ -16,10 +16,10 @@ const config = {
         },
     },
 
-    // The migrations dir, can be an relative or absolute path. Only edit this when really necessary.
+    // The migrations dir, can be an relative or absolute path.
     migrationsDir: "build/database/migrations",
 
-    // The mongodb collection where the applied changes are stored. Only edit this when really necessary.
+    // The mongodb collection where the applied changes are stored.
     changelogCollectionName: "changelog",
 
     // The file extension to create migrations and search for in migration dir

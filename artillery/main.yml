@@ -24,7 +24,7 @@ scenarios:
                 - post:
                       url: "/graphql"
                       beforeRequest: "getUser"
-                      # afterResponse: "log"
+                      afterResponse: "log"
             count: 5
           - post:
                 url: "/graphql"

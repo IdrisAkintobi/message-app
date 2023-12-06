@@ -5,8 +5,5 @@ export type Config = {
     auth: {
         secret: string;
     };
-    frontend: {
-        selfUrl: string;
-    };
     port?: number | string;
 };
